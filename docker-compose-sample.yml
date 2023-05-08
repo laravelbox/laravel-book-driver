@@ -1,0 +1,44 @@
+version: "3.8"
+# Defines which compose version to use
+services:
+  # Services line define which Docker images to run. In this case, it will be MySQL server and WordPress image.
+  db:
+    image: mysql:5.7
+    ports:
+      - "3308:3306"
+    # image: mysql:5.7 indicates the MySQL database container image from Docker Hub used in this installation.
+    container_name: mysql-laravel-book-driver-container
+    restart: no
+    environment:
+      MYSQL_ROOT_PASSWORD: secretpassword
+      MYSQL_DATABASE: laravel_book_driver
+      #MYSQL_USER: root
+      #MYSQL_PASSWORD: secretpassword
+      # Previous four lines define the main variables needed for the MySQL container to work: database, database username, database user password, and the MySQL root password.
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin-laravel-book-driver-container
+    restart: no
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: secretpassword
+    ports:
+      - "8088:80"
+  web:
+    depends_on:
+      - db
+    build: . 
+    container_name: apache-laravel-book-driver-container
+    restart: no
+    # Restart line controls the restart mode, meaning if the container stops running for any reason, it will restart the process immediately.
+    ports:
+      - "8008:80"
+      # The previous line defines the port that the WordPress container will use. After successful installation, the full path will look like this: http://localhost:8000
+    volumes:
+      - './public:/var/www/html'
+      - './:/var/www/'
+volumes:
+  mysql: {}
